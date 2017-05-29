@@ -8,6 +8,11 @@
 #include "afxdialogex.h"
 #include "EMUtil.h"
 
+#include <chrono>
+#include <ctime>
+
+using namespace std;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -187,6 +192,21 @@ void CembrowserDlg::Start()
 	m_settingDlg.ReadINI();	//INI파일 읽기
 	SetScreenSize();
 	ShowIndexHTML();
+	QuitProcess();	
+}
+
+
+
+void CembrowserDlg::QuitProcess()
+{
+	switch (m_settingDlg.m_autoquitSel)
+	{
+	case 0:	//프로그램 종료
+	case 1:	//PC 종료
+		SetTimer(2, 1000, nullptr);
+	case 2:	//아무것도 하지 않음.
+		break;
+	}
 }
 
 void CembrowserDlg::ShowIndexHTML()
@@ -298,6 +318,24 @@ void CembrowserDlg::OnTimer(UINT_PTR nIDEvent)
 			{
 				KillTimer(1);
 				ProcScreenSaver();
+			}
+			break;
+		case 2:	//프로그램 종료 관련
+			chrono::system_clock::time_point now = chrono::system_clock::now();
+			time_t now_c = chrono::system_clock::to_time_t(now);
+			struct tm parts;
+			localtime_s(&parts, &now_c);
+			if (parts.tm_hour == m_settingDlg.m_autoquitHour && parts.tm_min == m_settingDlg.m_autoquitMinute)
+			{
+				KillTimer(2);
+				if (m_settingDlg.m_autoquitSel == 0)	//프로그램 종료
+				{
+					PostQuitMessage(0);
+				}
+				else if (m_settingDlg.m_autoquitSel == 1)	//PC 종료
+				{
+					CEMUtil::PowerOff();
+				}
 			}
 			break;
 	}

@@ -42,6 +42,7 @@ public:
 	CExplorer_control m_control;
 	CEMBrowserSettingDlg m_settingDlg;
 	void Start();
+	void QuitProcess();
 	void ShowIndexHTML();
 	void ShowSaverHTML();
 	void SetScreenSize();
